@@ -104,6 +104,7 @@ def get_or_create_chain():
                 it should be in the easy language as possible for the farmers to understand.
                 but data should be same as the context provided.
                 if the data is not sufficient then say "Based on available information..." and give conservative guidance
+                and want the exact same answer.
         """  
 
         "{context}"

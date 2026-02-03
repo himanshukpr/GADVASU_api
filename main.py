@@ -8,7 +8,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
 
 # ---------- CONFIG ----------
-DOC_PATHS = [os.path.join(os.getcwd(), 'data', f) for f in os.listdir('data')] # list of docx files in data folder
+DOC_PATHS = [os.path.join(os.getcwd(), 'data', f) for f in os.listdir('data') if f.endswith('.docx')] # list of docx files in data folder
 VECTOR_DIR = "faiss_index"     # folder, not .pkl
 MODEL_NAME = "llama3.2:3b" 
 
@@ -20,14 +20,23 @@ retrieval_chain = None  # global cache
 # ---------- HELPERS ----------
 def build_vectorstore():
     all_docs = []
+    print(f"Found DOC_PATHS: {DOC_PATHS}")
     for path in DOC_PATHS:
         if os.path.exists(path):
-            loader = Docx2txtLoader(path)
-            all_docs.extend(loader.load())
+            try:
+                print(f"Loading: {path}")
+                loader = Docx2txtLoader(path)
+                docs = loader.load()
+                print(f"Loaded {len(docs)} documents from {path}")
+                all_docs.extend(docs)
+            except Exception as e:
+                print(f"ERROR loading {path}: {e}")
         else:
             print(f"WARNING: File not found: {path}")
+    
+    print(f"Total documents loaded: {len(all_docs)}")
     if not all_docs:
-        raise ValueError("No documents loaded. Check DOC_PATHS.")
+        raise ValueError(f"No documents loaded. Check DOC_PATHS. Found paths: {DOC_PATHS}")
 
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,

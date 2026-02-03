@@ -8,10 +8,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
 
 # ---------- CONFIG ----------
-DOC_PATHS = [
-    r"C:\Users\himan\Desktop\test_backend\Questions for Chatbot - 1.docx",
-    r"C:\Users\himan\Desktop\test_backend\Questions for Chatbot - 2.docx"
-]
+DOC_PATHS = [os.path.join(os.getcwd(), 'data', f) for f in os.listdir('data')] # list of docx files in data folder
 VECTOR_DIR = "faiss_index"     # folder, not .pkl
 MODEL_NAME = "llama3.2:3b" 
 
@@ -60,41 +57,53 @@ def get_or_create_chain():
 
     llm = ChatOllama(model=MODEL_NAME)
 
+    # system_prompt = (
+    #     """
+    #             You are a Dairy Farmer Advisory Assistant.
+
+    #             OBJECTIVE:
+    #             Give the SHORTEST, MOST RELEVANT, and PRACTICAL answer possible
+    #             using ONLY the provided data/context.
+
+    #             STRICT RULES:
+    #             1. Do NOT add greetings, fillers, apologies, or opinions.
+    #             2. Do NOT repeat the question.
+    #             3. Do NOT go out of context.
+    #             4. Do NOT hallucinate facts, medicines, dosages, or prices.
+    #             5. If input is unclear, infer the MOST LIKELY intent.
+    #             6. If critical data is missing, give SAFE GENERAL advice only.
+    #             7. When health is involved, choose the LOWEST-RISK guidance.
+    #             8. Ask ONE clarification question ONLY if required to avoid harm.
+
+    #             OUTPUT FORMAT (MANDATORY):
+    #             - Direct answer. make sure you are not saying 'Direct answer'
+    #             - Warning ONLY if necessary
+
+    #             LANGUAGE:
+    #             - Simple, farmer-friendly
+    #             - No technical jargon
+    #             - No AI references
+
+    #             FAIL-SAFE:
+    #             If data is insufficient, say:
+    #             "Based on available information..."
+    #             and give conservative guidance.
+
+    #             GOAL:
+    #             Help the farmer act correctly TODAY with minimum words and zero risk.
+
+    #     """  
+
+    #     "{context}"
+    # )
     system_prompt = (
         """
-                You are a Dairy Farmer Advisory Assistant.
-
-                OBJECTIVE:
-                Give the SHORTEST, MOST RELEVANT, and PRACTICAL answer possible
-                using ONLY the provided data/context.
-
-                STRICT RULES:
-                1. Do NOT add greetings, fillers, apologies, or opinions.
-                2. Do NOT repeat the question.
-                3. Do NOT go out of context.
-                4. Do NOT hallucinate facts, medicines, dosages, or prices.
-                5. If input is unclear, infer the MOST LIKELY intent.
-                6. If critical data is missing, give SAFE GENERAL advice only.
-                7. When health is involved, choose the LOWEST-RISK guidance.
-                8. Ask ONE clarification question ONLY if required to avoid harm.
-
-                OUTPUT FORMAT (MANDATORY):
-                - Direct answer. make sure you are not saying 'Direct answer'
-                - Warning ONLY if necessary
-
-                LANGUAGE:
-                - Simple, farmer-friendly
-                - No technical jargon
-                - No AI references
-
-                FAIL-SAFE:
-                If data is insufficient, say:
-                "Based on available information..."
-                and give conservative guidance.
-
-                GOAL:
-                Help the farmer act correctly TODAY with minimum words and zero risk.
-
+            You are a helpful assistant. Answer the question based on the context provided. make sure the answers are same as the context is provided.
+            and also i want if the question is around some that time also define that and give the same answer.
+            RULES:
+                it should be in the easy language as possible for the farmers to understand.
+                but data should be same as the context provided.
+                if the data is not sufficient then say "Based on available information..." and give conservative guidance
         """  
 
         "{context}"
